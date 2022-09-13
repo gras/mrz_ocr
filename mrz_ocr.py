@@ -77,14 +77,6 @@ def get_text(image_location):
 		percentWidth = w / float(W)
 		percentHeight = h / float(H)
 
-		# print("x, y, w, h: ", x, y, w, h)
-		# print("%W, %H: ", percentWidth, percentHeight, "0.80 - 0.02")
-		# mrz = image[y:y + h, x:x + w]
-		# mrz = gray[y:y + h, x:x + w]
-		# mrzStr = "MRZ "+ str(i)
-		# i+=1
-		# cv2.imshow(mrzStr, mrz)
-
 		# if the bounding box occupies > 80% width and > 4% height of the
 		# image, then assume we have found the MRZ
 		if percentWidth > 0.8 and percentHeight > 0.04:
@@ -94,7 +86,6 @@ def get_text(image_location):
 	# if the MRZ was not found, exit the script
 	if mrzBox is None:
 		print("[INFO] MRZ could not be found")
-		# cv2.waitKey(0)
 		sys.exit(0)
 
 	# pad the bounding box since we applied erosions and now need to
@@ -104,34 +95,25 @@ def get_text(image_location):
 	pY = int((y + h) * 0.03)
 	(x, y) = (x - pX, y - pY)
 	(w, h) = (w + (pX * 2), h + (pY * 2))
-	# print("x, y, w, h: ", x, y, w, h)
 
-	# extract the padded MRZ from the image
-	# mrz = gray[y:y + h, x:x + w]
+	# resize the full color image
+	# since OCR seems to work better (vice gray scale)
+	newImg = imutils.resize(image, width=700)
+	newMrz = newImg[y:y + h, x:x + w]
 
 	# OCR the MRZ region of interest using Tesseract, removing any
 	# occurrences of spaces
-	# mrzText = pytesseract.image_to_string(mrz)
-	# mrzText = mrzText.replace(" ", "")
-	# print(mrzText)
-
-	newImg = imutils.resize(image, width=700)
-	newMrz = newImg[y:y + h, x:x + w]
-	# cv2.imshow("New MRZ", newMrz)
 	mrzText = pytesseract.image_to_string(newMrz)
 	mrzText = mrzText.replace(" ", "")
 	print(mrzText)
 	return mrzText
 
-	# show the MRZ image
-	# cv2.imshow("MRZ", mrz)
-	# cv2.waitKey(0)
 
 if __name__ == "__main__":
 	# construct the argument parser and parse the arguments
 	ap = argparse.ArgumentParser()
 	ap.add_argument("-i", "--image", required=True,
-		help="path to input image to be OCR'd")
+		help="path to input image")
 	args = vars(ap.parse_args())
 	results = get_text(args["image"])
 	print(results)
