@@ -11,6 +11,8 @@ import sys
 import cv2
 
 def get_text(image_location):
+	print(image_location)
+
 	# load the input image, convert it to grayscale, and grab its
 	# dimensions
 	image = cv2.imread(image_location)
@@ -24,7 +26,7 @@ def get_text(image_location):
 
 	# initialize a rectangular and square structuring kernel
 	rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 7))
-	sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (21, 21))
+	sqKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (25, 25))
 
 	# smooth the image using a 3x3 Gaussian blur and then apply a
 	# blackhat morpholigical operator to find dark regions on a light
@@ -118,17 +120,18 @@ def get_text(image_location):
 	# cv2.imshow("New MRZ", newMrz)
 	mrzText = pytesseract.image_to_string(newMrz)
 	mrzText = mrzText.replace(" ", "")
-	# print(mrzText)
+	print(mrzText)
 	return mrzText
 
 	# show the MRZ image
 	# cv2.imshow("MRZ", mrz)
 	# cv2.waitKey(0)
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True,
-	help="path to input image to be OCR'd")
-args = vars(ap.parse_args())
-results = get_text(args["image"])
-print(results)
+if __name__ == "__main__":
+	# construct the argument parser and parse the arguments
+	ap = argparse.ArgumentParser()
+	ap.add_argument("-i", "--image", required=True,
+		help="path to input image to be OCR'd")
+	args = vars(ap.parse_args())
+	results = get_text(args["image"])
+	print(results)
